@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PhishGuard AI</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 340px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      user-select: none;
+    }
+
+    /* ── Header ───────────────────────────────────────── */
+    .hdr {
+      background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
+      padding: 18px 16px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .hdr-left { display: flex; align-items: center; gap: 11px; }
+    .hdr-shield {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, #14532d, #22c55e);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 19px;
+      box-shadow: 0 4px 16px rgba(34,197,94,0.38);
+      flex-shrink: 0;
+    }
+    .hdr-title { font-size: 15.5px; font-weight: 700; color: #f1f5f9; }
+    .hdr-sub   { font-size: 11px;   color: #64748b;   margin-top: 2px; }
+    .hdr-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: #334155;
+      flex-shrink: 0;
+      transition: background 350ms, box-shadow 350ms;
+    }
+    .hdr-dot.online  { background: #22c55e; box-shadow: 0 0 7px rgba(34,197,94,0.55); }
+    .hdr-dot.offline { background: #f97316; }
+
+    /* ── Body ─────────────────────────────────────────── */
+    .body { padding: 16px; }
+
+    /* Scan button */
+    #scanBtn {
+      width: 100%;
+      padding: 11px 16px;
+      background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.2px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: opacity 160ms, transform 120ms;
+    }
+    #scanBtn:hover   { opacity: 0.9; }
+    #scanBtn:active  { transform: scale(0.98); }
+    #scanBtn:disabled { opacity: 0.45; cursor: default; transform: none; }
+    #btn-ico { font-size: 15px; }
+
+    /* Result card */
+    #result-card {
+      margin-top: 12px;
+      background: #1e293b;
+      border-radius: 13px;
+      overflow: hidden;
+      display: none;
+    }
+    #result-card.show { display: block; }
+
+    .rc-verdict {
+      display: flex; align-items: center; gap: 11px;
+      padding: 14px 14px 10px;
+    }
+    .rc-ico {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 21px;
+      flex-shrink: 0;
+    }
+    .rc-ico.s { background: rgba(34,197,94,0.14); }
+    .rc-ico.p { background: rgba(239,68,68,0.14); }
+    .rc-ico.o { background: rgba(249,115,22,0.14); }
+
+    .rc-label   { font-size: 15px; font-weight: 700; }
+    .rc-label.s { color: #4ade80; }
+    .rc-label.p { color: #f87171; }
+    .rc-label.o { color: #fb923c; }
+    .rc-sub     { font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
+
+    .rc-conf { padding: 0 14px 12px; }
+    .rc-conf-top {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.6px;
+      color: #64748b; margin-bottom: 5px;
+    }
+    .rc-conf-val { color: #94a3b8; font-size: 11px; }
+    .rc-track  { height: 5px; background: #334155; border-radius: 99px; overflow: hidden; }
+    .rc-fill   { height: 100%; border-radius: 99px; transition: width 650ms ease; width: 0%; }
+    .rc-fill.s { background: linear-gradient(90deg,#15803d,#4ade80); }
+    .rc-fill.p { background: linear-gradient(90deg,#991b1b,#f87171); }
+    .rc-fill.o { background: linear-gradient(90deg,#9a3412,#fb923c); }
+
+    .rc-url {
+      padding: 0 14px 12px;
+      font-size: 10.5px;
+      color: #475569;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Error message */
+    #err-msg {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: rgba(249,115,22,0.11);
+      border: 1px solid rgba(249,115,22,0.25);
+      border-radius: 9px;
+      font-size: 12px;
+      color: #fb923c;
+      line-height: 1.4;
+      display: none;
+    }
+    #err-msg.show { display: block; }
+
+    /* ── Feedback section ─────────────────────────── */
+    #feedback-section {
+      margin-top: 10px;
+      display: none;
+    }
+    #feedback-section.show { display: block; }
+    .fb-prompt {
+      font-size: 11.5px;
+      color: #94a3b8;
+      margin-bottom: 7px;
+      text-align: center;
+    }
+    .fb-btns {
+      display: flex;
+      gap: 8px;
+    }
+    .fb-btns button {
+      flex: 1;
+      padding: 8px 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 160ms, transform 120ms;
+    }
+    .fb-btns button:hover { opacity: 0.85; }
+    .fb-btns button:active { transform: scale(0.97); }
+    #fb-correct {
+      background: rgba(34,197,94,0.15);
+      color: #4ade80;
+    }
+    #fb-wrong {
+      background: rgba(239,68,68,0.15);
+      color: #f87171;
+    }
+    #fb-status {
+      margin-top: 7px;
+      font-size: 11px;
+      color: #94a3b8;
+      text-align: center;
+      min-height: 16px;
+    }
+
+    /* ── Footer ───────────────────────────────────────── */
+    .ftr {
+      padding: 8px 16px 10px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      display: flex; align-items: center; gap: 7px;
+      font-size: 10.5px;
+      color: #475569;
+    }
+    .ftr-dot { width: 6px; height: 6px; border-radius: 50%; background: #334155; flex-shrink: 0; transition: background 350ms; }
+    .ftr-dot.online  { background: #22c55e; }
+    .ftr-dot.offline { background: #f97316; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="hdr-shield">&#128737;</div>
+      <div>
+        <div class="hdr-title">PhishGuard AI</div>
+        <div class="hdr-sub">ML-Powered Protection</div>
+      </div>
+    </div>
+    <div class="hdr-dot" id="hdr-dot"></div>
+  </div>
+
+  <!-- Body -->
+  <div class="body">
+    <button id="scanBtn">
+      <span id="btn-ico">&#128269;</span>
+      <span id="btn-txt">Scan Current Tab</span>
+    </button>
+
+    <!-- Result card (shown after scan) -->
+    <div id="result-card">
+      <div class="rc-verdict">
+        <div class="rc-ico s" id="rc-ico-wrap">
+          <span id="rc-ico">&#128737;</span>
+        </div>
+        <div>
+          <div class="rc-label s" id="rc-label">Safe Website</div>
+          <div class="rc-sub"     id="rc-sub">ML model prediction</div>
+        </div>
+      </div>
+      <div class="rc-conf">
+        <div class="rc-conf-top">
+          <span>Confidence</span>
+          <span class="rc-conf-val" id="rc-conf-val">--</span>
+        </div>
+        <div class="rc-track">
+          <div class="rc-fill s" id="rc-fill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="rc-url" id="rc-url"></div>
+    </div>
+
+    <!-- Error message -->
+    <div id="err-msg"></div>
+
+    <!-- Feedback section (shown after scan result) -->
+    <div id="feedback-section">
+      <div class="fb-prompt">Was this result correct?</div>
+      <div class="fb-btns">
+        <button id="fb-correct">✓ Correct Result</button>
+        <button id="fb-wrong">✗ Report Wrong</button>
+      </div>
+      <div id="fb-status"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="ftr">
+    <div class="ftr-dot" id="ftr-dot"></div>
+    <span id="ftr-txt">Backend: checking&hellip;</span>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PhishGuard AI - Feedback</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="pg-bg" aria-hidden="true"></div>
+  <div class="pg-particles" aria-hidden="true"></div>
+
+  <main class="pg-feedback-page">
+    <div class="pg-feedback-card">
+      <h1 class="pg-feedback-title">What went wrong?</h1>
+      <p class="pg-feedback-subtitle">Help us improve our phishing detection system.</p>
+
+      <div id="feedback-form-wrap">
+        <form id="feedback-form">
+        <div class="pg-radio-group" role="radiogroup" aria-label="Feedback reason">
+          <label class="pg-radio">
+            <input type="radio" name="reason" value="incorrect_flag" required />
+            Incorrectly flagged legitimate website
+          </label>
+          <label class="pg-radio">
+            <input type="radio" name="reason" value="missed_threat" />
+            Missed phishing threat
+          </label>
+        </div>
+
+        <textarea
+          id="comments"
+          class="pg-textarea"
+          placeholder="Optional comments..."
+          aria-label="Optional comments"
+        ></textarea>
+
+        <div class="pg-actions">
+          <button id="submit-feedback" class="pg-btn pg-btn-primary" type="submit">Submit Feedback</button>
+        </div>
+
+        <div id="feedback-status" class="pg-hidden" aria-live="polite"></div>
+        </form>
+      </div>
+
+      <div id="processing" class="pg-processing pg-hidden" aria-live="polite">
+        <div class="pg-spinner" aria-hidden="true"></div>
+        <div class="pg-processing-text">Saving your feedback...</div>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast" class="pg-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <div id="feedback-thanks-overlay" class="pg-modal-overlay pg-hidden" aria-hidden="true">
+    <div class="pg-modal" role="dialog" aria-modal="true" aria-labelledby="feedback-thanks-title" tabindex="-1">
+      <div class="pg-modal-glow" aria-hidden="true"></div>
+      <h2 id="feedback-thanks-title" class="pg-modal-title">Thanks for your feedback!</h2>
+      <p class="pg-modal-text">Your input helps improve our model.</p>
+    </div>
+  </div>
+
+  <script src="shared.js"></script>
+  <script src="feedback.js"></script>
+</body>
+</html>

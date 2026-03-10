@@ -1,0 +1,19 @@
+url,label
+https://github.com/,legitimate
+https://pro.e-box.co.in/login,legitimate
+http://127.0.0.1:5500/Frontend/index.html,legitimate
+http://127.0.0.1:5500/Frontend/feedback.html?url=http%3A%2F%2F127.0.0.1%3A5500%2FFrontend%2Findex.html,legitimate
+https://leetcode.com/problemset/,legitimate
+http://127.0.0.1:5500/Frontend/feedback.html?url=https%3A%2F%2Fleetcode.com%2Fproblemset%2F,legitimate
+https://www.paypa1.com/,phishing
+http://127.0.0.1:5500/WebUI/index.html,legitimate
+http://127.0.0.1:5500/WebUI/feedback.html?url=http%3A%2F%2F127.0.0.1%3A5500%2FWebUI%2Findex.html,legitimate
+https://github.com/,legitimate
+http://login-paypal-secure.tk/signin,legitimate,incorrect_flag,testing from terminal
+https://github.com/,legitimate,incorrect_flag,
+https://discord.com/channels/1333728150198292562/1333728151464968285,legitimate,incorrect_flag,
+https://discord.com/login?redirect_to=%2Fchannels%2F1333728150198292562%2F1333728151464968285,legitimate,incorrect_flag,
+https://drive.google.com/drive/home,legitimate,incorrect_flag,
+https://smartinterviews.in/report/CVR-2028-R,legitimate,incorrect_flag,
+https://hive.smartinterviews.in/browser?disableExtension=false&browser=Edge&version=145.0.0.0,legitimate,incorrect_flag,
+https://eduskillsfoundation.org/login/,legitimate,incorrect_flag,
