@@ -1,6 +1,27 @@
 // PhishGuard AI — Popup Script
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+function getVerdict(data) {
+  const isPhish = data?.status_code === 1;
+  const conf = data?.confidence || 0;
+
+  if (isPhish && conf > 0.8) return "high_risk";
+  if (isPhish && conf > 0.6) return "suspicious";
+  return "safe";
+}
+
+function getReasons(url) {
+  const reasons = [];
+
+  if (!url) return reasons;
+
+  if (url.length > 75) reasons.push("URL is unusually long");
+  if ((url.match(/\./g) || []).length > 3) reasons.push("Too many subdomains");
+  if (/\d/.test(url)) reasons.push("Contains suspicious digits");
+
+  return reasons;
+}
+
 function confToPercent(c) {
   if (c == null) return null;
   const n = Number(c);
@@ -78,16 +99,31 @@ function showResult(state, data) {
     rcLabel.className   = "rc-label s";
     rcLabel.textContent = "Safe Website";
     rcSub.textContent   = (data && data.result) ? String(data.result) : "Legitimate";
+    rcSub.style.whiteSpace = "pre-line";
   } else if (state === "phishing") {
     rcIco.textContent   = "\u26A0";
     rcLabel.className   = "rc-label p";
     rcLabel.textContent = "Phishing Detected";
     rcSub.textContent   = (data && data.result) ? String(data.result) : "Malicious URL";
+    rcSub.style.whiteSpace = "pre-line";
+  } else if (state === "warning") {
+    rcIco.textContent   = "\u26A0";
+    rcLabel.className   = "rc-label o";
+    rcLabel.textContent = "Warning";
+    rcSub.textContent   = (data && data.result) ? String(data.result) : "Suspicious";
+    rcSub.style.whiteSpace = "pre-line";
   } else {
     rcIco.textContent   = "\u26A0";
     rcLabel.className   = "rc-label o";
     rcLabel.textContent = "Backend Offline";
     rcSub.textContent   = "Start Flask on port 5000";
+    rcSub.style.whiteSpace = "pre-line";
+  }
+
+  var urlForReasons = (data && data.url) ? String(data.url) : lastScanUrl;
+  var reasons = getReasons(urlForReasons);
+  if (reasons.length) {
+    rcSub.textContent += "\nReasons:\n- " + reasons.join("\n- ");
   }
 
   rcUrl.textContent = (data && data.url) ? fmtUrl(data.url, 44) : "";
@@ -95,7 +131,7 @@ function showResult(state, data) {
   errMsg.classList.remove("show");
 
   // Show feedback section after scan result
-  if (state === "safe" || state === "phishing") {
+  if (state === "safe" || state === "phishing" || state === "warning") {
     fbSection.classList.add("show");
     fbStatus.textContent = "";
   }
@@ -135,13 +171,11 @@ scanBtn.addEventListener("click", function () {
 
       lastScanUrl = url;
       var d   = resp.data;
-      var raw = (d && d.result) ? String(d.result).toLowerCase() : "";
-      var bad = (d && d.status_code === 1)  ||
-                raw.indexOf("phish")      !== -1 ||
-                raw.indexOf("suspicious") !== -1;
-      lastScanResult = bad ? "phishing" : "legitimate";
+      const verdict = getVerdict(d);
+      lastScanResult = verdict === "high_risk" ? "phishing" : verdict === "suspicious" ? "suspicious" : "safe";
+      var uiState = verdict === "high_risk" ? "phishing" : verdict === "suspicious" ? "warning" : "safe";
 
-      showResult(bad ? "phishing" : "safe", d);
+      showResult(uiState, d);
       checkHealth();
       resetBtn();
     });

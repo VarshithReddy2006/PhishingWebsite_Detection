@@ -255,6 +255,12 @@ body {
     color: rgba(255, 77, 79, 0.95);
 }
 
+.pg-result.pg-result-warn {
+    border-color: rgba(249, 115, 22, 0.40);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.18) inset, 0 0 0 4px rgba(249, 115, 22, 0.08);
+    color: rgba(251, 146, 60, 0.95);
+}
+
 /* Footer feedback */
 .pg-feedback {
     position: relative;

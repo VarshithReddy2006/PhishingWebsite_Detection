@@ -83,36 +83,45 @@ function clearResult() {
     analysisResultEl.classList.remove(
         "pg-result-bad",
         "pg-result-good",
+        "pg-result-warn",
         "safe-result",
         "phishing-result"
     );
 }
 
-function setResultClasses(isPhishing) {
-    analysisResultEl.classList.toggle("phishing-result", isPhishing);
-    analysisResultEl.classList.toggle("safe-result", !isPhishing);
-    analysisResultEl.classList.toggle("pg-result-bad", isPhishing);
-    analysisResultEl.classList.toggle("pg-result-good", !isPhishing);
+function setResultClasses(verdict) {
+    const isHighRisk = verdict === "high_risk";
+    const isSafe = verdict === "safe";
+    const isWarning = verdict === "suspicious";
+
+    analysisResultEl.classList.toggle("phishing-result", isHighRisk);
+    analysisResultEl.classList.toggle("safe-result", isSafe);
+    analysisResultEl.classList.toggle("pg-result-bad", isHighRisk);
+    analysisResultEl.classList.toggle("pg-result-good", isSafe);
+    analysisResultEl.classList.toggle("pg-result-warn", isWarning);
 }
 
 function renderResult(data) {
     if (!analysisResultEl) return;
 
-    const resultText = String(data?.result || "").trim();
-    const isPhishing = Number(data?.status_code) === 1 || resultText.toLowerCase() === "phishing";
-    const label = resultText || (isPhishing ? "Phishing" : "Legitimate");
+    const verdict = getVerdict(data);
+    const label = verdict === "high_risk" ? "Phishing" : verdict === "suspicious" ? "Warning" : "Safe";
     const confidence = typeof data?.confidence === "number" ? data.confidence : null;
     const confidenceText = confidence === null ? "" : `\nConfidence: ${(confidence * 100).toFixed(1)}%`;
 
-    analysisResultEl.textContent = `${label}${confidenceText}`;
-    setResultClasses(isPhishing);
+    const url = lastAnalysis?.url || (urlInput?.value || "").trim();
+    const reasons = getReasons(url);
+    const reasonsText = reasons.length ? `\nReasons:\n- ${reasons.join("\n- ")}` : "";
+
+    analysisResultEl.textContent = `${label}${confidenceText}${reasonsText}`;
+    setResultClasses(verdict);
     setResultHidden(false);
 }
 
 function renderError(message) {
     if (!analysisResultEl) return;
     analysisResultEl.textContent = message;
-    setResultClasses(true);
+    setResultClasses("high_risk");
     setResultHidden(false);
 }
 

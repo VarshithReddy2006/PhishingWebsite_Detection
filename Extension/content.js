@@ -26,6 +26,27 @@
     }
   }
 
+  function getVerdict(data) {
+    const isPhish = data?.status_code === 1;
+    const conf = data?.confidence || 0;
+
+    if (isPhish && conf > 0.8) return "high_risk";
+    if (isPhish && conf > 0.6) return "suspicious";
+    return "safe";
+  }
+
+  function getReasons(url) {
+    const reasons = [];
+
+    if (!url) return reasons;
+
+    if (url.length > 75) reasons.push("URL is unusually long");
+    if ((url.match(/\./g) || []).length > 3) reasons.push("Too many subdomains");
+    if (/\d/.test(url)) reasons.push("Contains suspicious digits");
+
+    return reasons;
+  }
+
   // ── CSS (entirely inside Shadow DOM — zero style leakage) ──────────────
   const CSS = `
     *, *::before, *::after { box-sizing: border-box; }
@@ -182,6 +203,11 @@
       box-shadow: 0 8px 30px rgba(249,115,22,0.38);
     }
 
+    #pg-btn.warning {
+      background: linear-gradient(135deg,#7c2d12,#f97316);
+      box-shadow: 0 8px 30px rgba(249,115,22,0.38);
+    }
+
     @keyframes pg-threat-pulse {
       0%,100% { box-shadow: 0 8px 30px rgba(239,68,68,0.42); }
       50%      { box-shadow: 0 8px 30px rgba(239,68,68,0.42), 0 0 0 12px rgba(239,68,68,0.14); }
@@ -276,7 +302,7 @@
   const pgBL  = shadow.getElementById("pg-bl");
 
   // ── State ──────────────────────────────────────────────────────────────
-  let shieldState = "scanning";  // scanning | safe | phishing | offline
+  let shieldState = "scanning";  // scanning | safe | warning | phishing | offline
   let lastData    = null;
   let lastContentResult = null;
   let panelOpen   = false;
@@ -300,6 +326,7 @@
     } else {
       if (ring) ring.remove();
       if (state === "safe")     { pgBI.textContent = "\uD83D\uDEE1"; pgBL.textContent = "Protected"; }
+      if (state === "warning")  { pgBI.textContent = "\u26A0";       pgBL.textContent = "Warning";   }
       if (state === "phishing") { pgBI.textContent = "\u26A0";       pgBL.textContent = "Threat!";   }
       if (state === "offline")  { pgBI.textContent = "\u26A0";       pgBL.textContent = "Offline";   }
     }
@@ -320,16 +347,33 @@
       pgVT.className   = "pg-v-head s";
       pgVT.textContent = "Safe Website";
       pgVS.textContent = (data && data.result) ? String(data.result) : "Legitimate";
+      pgVS.style.whiteSpace = "pre-line";
+    } else if (state === "warning") {
+      pgVI.textContent = "\u26A0";
+      pgVT.className   = "pg-v-head o";
+      pgVT.textContent = "Warning";
+      pgVS.textContent = (data && data.result) ? String(data.result) : "Suspicious";
+      pgVS.style.whiteSpace = "pre-line";
     } else if (state === "phishing") {
       pgVI.textContent = "\u26A0";
       pgVT.className   = "pg-v-head p";
       pgVT.textContent = "Phishing Detected";
       pgVS.textContent = (data && data.result) ? String(data.result) : "Malicious URL";
+      pgVS.style.whiteSpace = "pre-line";
     } else {
       pgVI.textContent = "\u26A0";
       pgVT.className   = "pg-v-head o";
       pgVT.textContent = "Backend Offline";
       pgVS.textContent = "Start Flask on port 5000";
+      pgVS.style.whiteSpace = "pre-line";
+    }
+
+    if (state !== "offline") {
+      const urlForReasons = (data && data.url) ? String(data.url) : window.location.href;
+      const reasons = getReasons(urlForReasons);
+      if (reasons.length) {
+        pgVS.textContent += "\nReasons:\n- " + reasons.join("\n- ");
+      }
     }
   }
 
@@ -401,6 +445,8 @@
     const conf = confToPercent(rawConfidence);
     const confLabel = conf !== null ? conf.toFixed(1) + "%" : "N/A";
     const resultLabel = rawResult ? String(rawResult) : "Phishing";
+    const reasons = getReasons(window.location.href);
+    const reasonsText = reasons.length ? "Reasons:\n- " + reasons.join("\n- ") : "";
 
     // ── Overlay (blocks all page interaction) ─────────────────────────
     const overlay = document.createElement("div");
@@ -472,6 +518,8 @@
         <span style="color:#475569;">&bull;</span>
         <span>Result: <strong>${resultLabel}</strong></span>
       </div>
+
+      ${reasonsText ? `<div style="margin:-12px 0 20px;font-size:12px;color:#94a3b8;white-space:pre-line;">${reasonsText}</div>` : ""}
 
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
         <button id="__pg_back__" style="
@@ -569,14 +617,12 @@
         }
 
         const d = resp.data;
-        const raw = (d && d.result) ? String(d.result).toLowerCase() : "";
-        const bad = (d && d.status_code === 1) ||
-          raw.indexOf("phish") !== -1 ||
-          raw.indexOf("suspicious") !== -1;
+        const verdict = getVerdict(d);
+        const state = verdict === "high_risk" ? "phishing" : verdict === "suspicious" ? "warning" : "safe";
 
-        lastContentResult = bad ? "phishing" : "legitimate";
-        applyShieldState(bad ? "phishing" : "safe", d);
-        if (bad) activateProtection(d && d.confidence, d && d.result);
+        lastContentResult = verdict === "high_risk" ? "phishing" : verdict === "suspicious" ? "suspicious" : "safe";
+        applyShieldState(state, d);
+        if (verdict === "high_risk") activateProtection(d && d.confidence, d && d.result);
       });
     }, 800);
   }

@@ -10,3 +10,6 @@ venv/
 *.pkl
 *.model
 node_modules/
+
+# Local report (do not publish)
+PROJECT_REPORT.md

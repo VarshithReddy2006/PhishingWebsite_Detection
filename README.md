@@ -18,6 +18,7 @@ Advanced phishing website detection system combining DistilBERT embeddings with 
 ### 🔍 Intelligent Analysis
 
 - **Real-Time URL Scanning**: Instant classification as Legitimate, Phishing, or Suspicious
+- **UI Verdicts**: Web UI / extension present results as Safe, Warning, or Phishing (based on model output + confidence)
 - **Confidence Scoring**: Probability-based authenticity scoring with low-confidence safety rules
 - **Prediction Caching**: O(1) lookups for previously scanned URLs
 - **Feedback Override Cache**: Community-corrected predictions with automatic cache refresh
@@ -282,7 +283,7 @@ python Backend/retrain.py
 
 ## 📄 License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ---
 
