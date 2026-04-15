@@ -1,50 +1,16 @@
 # PhishGuard AI — ML-Powered Phishing Website Detection
 
-Advanced phishing website detection system combining DistilBERT embeddings with ensemble ML classifiers, featuring a modern web interface and a real-time Chrome extension.
+Browser extension and web interface for real-time phishing detection using ensemble ML classifiers and 58 structural URL features.
 
 ---
 
 ## 🌟 Features
 
-### 🧠 Multi-Layer Detection Engine
-
-- **DistilBERT Embeddings**: Transformer-based URL representation for semantic analysis
-- **Ensemble ML Classifiers**: RandomForest + GradientBoosting for robust predictions
-- **60+ Structural Features**: URL length, entropy, TLD risk scoring, digit-letter ratios, path depth, and more
-- **Domain Reputation Analysis**: High-risk TLD detection, shortener identification, punycode checks
-- **Phishing Keyword Detection**: Pattern matching against known phishing vocabulary
-- **Feedback-Driven Learning**: User corrections retrain the model for continuous improvement
-
-### 🔍 Intelligent Analysis
-
-- **Real-Time URL Scanning**: Instant classification as Legitimate, Phishing, or Suspicious
-- **UI Verdicts**: Web UI / extension present results as Safe, Warning, or Phishing (based on model output + confidence)
-- **Confidence Scoring**: Probability-based authenticity scoring with low-confidence safety rules
-- **Prediction Caching**: O(1) lookups for previously scanned URLs
-- **Feedback Override Cache**: Community-corrected predictions with automatic cache refresh
-
-### 🎨 Modern Web Interface
-
-- **Sleek Dashboard**: Animated hero section with real-time URL scanning
-- **Live Results**: Instant phishing/legitimate verdict with confidence percentage
-- **Feedback System**: Users can report false positives/negatives to improve the model
-- **Responsive Design**: Works seamlessly across desktop and mobile devices
-- **Font Awesome Icons**: Professional iconography throughout the UI
-
-### 🧩 Chrome Extension (Manifest V3)
-
-- **Automatic Scanning**: Every page you visit is silently checked in the background
-- **Real-Time Alerts**: Instant popup warnings for detected phishing sites
-- **One-Click Feedback**: Report incorrect detections directly from the browser
-- **Lightweight**: Minimal resource usage with service worker architecture
-
-### 🔧 Technical Excellence
-
-- **Flask Backend**: RESTful API with comprehensive error handling and CORS support
-- **Modular Architecture**: Separate feature extraction, training, and inference modules
-- **Auto-Training**: Model trains automatically on first launch if not present
-- **Production Logging**: Enterprise-level logging with configurable verbosity
-- **Cross-Platform**: Compatible with Windows, macOS, and Linux
+- **58 Structural Features** — URL length, entropy, TLD risk, character ratios, path depth
+- **Ensemble Classifiers** — Random Forest + Gradient Boosting
+- **Real-Time Scanning** — Web UI and Chrome extension (Manifest V3)
+- **Feedback-Driven Learning** — User corrections improve model accuracy
+- **Auto-Retraining** — Model updates from user feedback
 
 ---
 
@@ -52,61 +18,40 @@ Advanced phishing website detection system combining DistilBERT embeddings with 
 
 ### Prerequisites
 
-- Python 3.8 or higher
-- Google Chrome (for the extension)
+- Python 3.8+
+- Google Chrome (for extension)
 
 ### Installation
-
-**1. Clone the repository**
 
 ```bash
 git clone https://github.com/VarshithReddy2006/PhishingWebsite_Detection.git
 cd PhishingWebsite_Detection
 ```
 
-**2. Set up the environment**
+**Setup environment:**
 
 ```powershell
-# One-command setup (creates venv + installs dependencies)
 powershell -ExecutionPolicy Bypass -File .\setup.ps1
-```
-
-Or manually:
-
-```powershell
+# Or manually:
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-**3. Train the model**
+**Train and run:**
 
 ```powershell
 python Backend/train.py
-```
-
-**4. Start the server**
-
-```powershell
 python Backend/app.py
 ```
 
-Or use the one-click launcher (auto-trains if model is missing):
+Access at **http://127.0.0.1:5000**
 
-```powershell
-.\start_backend.cmd
-```
+### Chrome Extension
 
-**5. Access the application**
-
-Open your browser and navigate to **http://127.0.0.1:5000**
-
-### Chrome Extension Setup
-
-1. Open `chrome://extensions` in Chrome
-2. Enable **Developer mode** (top-right toggle)
-3. Click **Load unpacked** → select the `Extension/` folder
-4. The extension will automatically scan every website you visit
+1. Go to `chrome://extensions`
+2. Enable **Developer mode**
+3. Click **Load unpacked** → select `Extension/`
 
 ---
 
@@ -115,47 +60,53 @@ Open your browser and navigate to **http://127.0.0.1:5000**
 ```
 PhishingWebsite_Detection/
 ├── Backend/
-│   ├── app.py                 # Flask API server & route handlers
-│   ├── features.py            # 60+ URL feature extraction engine
-│   ├── train.py               # Model training pipeline (DistilBERT + RF)
-│   ├── retrain.py             # Feedback-based model retraining
-│   ├── utils.py               # Venv management & dependency helpers
-│   ├── dataset.csv            # Training dataset (~5MB)
-│   └── feedback.csv           # User-submitted corrections
+│   ├── app.py           # Flask API server
+│   ├── features.py      # 58-feature extraction
+│   ├── train.py         # Model training
+│   ├── retrain.py       # Feedback-based retraining
+│   ├── utils.py         # Environment helpers
+│   ├── dataset.csv      # Training data
+│   └── feedback.csv     # User corrections
 ├── WebUI/
-│   ├── index.html             # Main scanning dashboard
-│   ├── feedback.html          # Feedback submission page
-│   ├── styles.css             # UI styling (dark theme)
-│   ├── app.js                 # Main page logic
-│   ├── feedback.js            # Feedback page logic
-│   └── shared.js              # Shared utilities
+│   ├── index.html       # Dashboard
+│   ├── feedback.html    # Feedback page
+│   ├── styles.css       # Dark theme
+│   ├── app.js           # Dashboard logic
+│   ├── feedback.js      # Feedback logic
+│   └── shared.js        # Utilities
 ├── Extension/
-│   ├── manifest.json          # Chrome extension manifest (MV3)
-│   ├── background.js          # Service worker for auto-scanning
-│   ├── content.js             # Content script injected into pages
-│   ├── popup.html             # Extension popup UI
-│   └── popup.js               # Popup logic
+│   ├── manifest.json    # Manifest V3
+│   ├── background.js    # Service worker
+│   ├── content.js       # Content script
+│   ├── popup.html       # Popup UI
+│   ├── popup.js         # Popup logic
+│   └── shared.js        # Shared utilities
 ├── tools/
-│   └── bootstrap.py           # Project bootstrapping utilities
-├── requirements.txt           # Python dependencies
-├── setup.ps1                  # One-command environment setup
-├── run.ps1                    # One-command server launcher
-└── start_backend.cmd          # Double-click launcher (Windows)
+│   └── bootstrap.py
+├── requirements.txt
+├── setup.ps1
+├── run.ps1
+└── start_backend.cmd
 ```
 
 ---
 
-## 🔧 API Documentation
+## 🔧 API Endpoints
 
-### `POST /predict`
+| Method | Endpoint           | Description                    |
+|--------|--------------------|--------------------------------|
+| POST   | `/predict`         | Analyze URL for phishing       |
+| POST   | `/feedback`        | Submit prediction correction   |
+| POST   | `/features`        | Get 58-feature vector          |
+| GET    | `/health`          | Health check                   |
+| GET    | `/download/feedback` | Download feedback CSV        |
+| GET    | `/download/dataset`  | Download training dataset    |
 
-Analyzes a URL for phishing indicators.
+### Example: `/predict`
 
 **Request:**
 ```json
-{
-  "url": "https://example.com"
-}
+{ "url": "https://example.com" }
 ```
 
 **Response:**
@@ -168,92 +119,47 @@ Analyzes a URL for phishing indicators.
 }
 ```
 
-| Field         | Description                                      |
-|---------------|--------------------------------------------------|
-| `status_code` | `0` = Legitimate, `1` = Phishing/Suspicious      |
-| `result`      | `"Legitimate"`, `"Phishing"`, or `"Suspicious"`  |
-| `confidence`  | Model confidence (0.0 – 1.0)                     |
+---
 
-### `POST /feedback`
+## 📊 Detection Features
 
-Submit a correction for a URL prediction.
-
-**Request:**
-```json
-{
-  "url": "https://example.com",
-  "feedback_type": "incorrect_flag",
-  "original_prediction": "Phishing",
-  "comment": "This is a safe site"
-}
-```
-
-### `POST /features`
-
-Returns the extracted feature vector for a URL.
-
-### `GET /health`
-
-Health check endpoint. Returns `{"status": "running"}`.
-
-### `GET /download/feedback`
-
-Download the feedback CSV file.
-
-### `GET /download/dataset`
-
-Download the training dataset CSV file.
+| Category            | Features                                          |
+|---------------------|---------------------------------------------------|
+| URL Structure       | Length, dot/hyphen/slash count, path depth        |
+| Domain Analysis     | Hostname length, subdomain count, entropy, TLD risk |
+| Character Ratios    | Digit-to-letter ratio, special character frequency |
+| Security Signals    | HTTPS token, IP usage, punycode detection         |
+| Suspicious Patterns | Phishing keywords, shorteners, abnormal subdomains |
+| Word Analysis       | Min/max/avg word length in host and path          |
 
 ---
 
 ## 🧪 Testing
 
-**Start the backend server:**
-
 ```powershell
+# Start backend
 python Backend/app.py
-```
 
-**Test a URL prediction:**
+# Test URL
+curl -X POST http://127.0.0.1:5000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://google.com"}'
 
-```powershell
-curl -X POST http://127.0.0.1:5000/predict -H "Content-Type: application/json" -d '{"url": "https://google.com"}'
-```
-
-**Retrain from feedback:**
-
-```powershell
+# Retrain from feedback
 python Backend/retrain.py
 ```
-
----
-
-## 📊 Detection Features
-
-The model analyzes **60+ structural features** from each URL, including:
-
-| Category                | Features                                                        |
-|-------------------------|-----------------------------------------------------------------|
-| **URL Structure**       | Length, dot count, hyphen count, slash count, path depth         |
-| **Domain Analysis**     | Hostname length, subdomain count, entropy score, TLD risk       |
-| **Character Ratios**    | Digit-to-letter ratio, special character frequency              |
-| **Security Signals**    | HTTPS token presence, IP address usage, punycode detection      |
-| **Suspicious Patterns** | Phishing keywords, URL shorteners, abnormal subdomains          |
-| **Word Analysis**       | Shortest/longest/average word length in host and path           |
 
 ---
 
 ## 🛠️ Development
 
-### Adding New Features
+**Add new features:**
 
-1. Add the feature name to `FEATURE_COLUMNS` in [Backend/features.py](Backend/features.py)
-2. Implement the extraction logic in `get_structural_features()`
-3. Retrain the model: `python Backend/train.py`
+1. Add feature name to `FEATURE_COLUMNS` in `Backend/features.py`
+2. Implement extraction in `get_structural_features()`
+3. Retrain: `python Backend/train.py`
 
-### Retraining the Model
-
-The model can be retrained with user feedback to improve accuracy over time:
+**Retrain model:**
 
 ```powershell
 python Backend/retrain.py
@@ -261,60 +167,41 @@ python Backend/retrain.py
 
 ---
 
-## 🔒 Security Features
+## 🔒 Security
 
-- **Input Validation**: URL and JSON payload validation on all endpoints
-- **CORS Configuration**: Configurable cross-origin resource sharing
-- **Error Handling**: Graceful error handling with sanitized error messages
-- **Safe File Processing**: Robust CSV parsing with bad-line skipping
-- **Low-Confidence Safety**: URLs with low model confidence are flagged as Suspicious
+- Input validation on all endpoints
+- CORS configuration
+- Sanitized error messages
+- Robust CSV parsing
+- Low-confidence predictions flagged as Suspicious
 
 ---
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+2. Create feature branch (`git checkout -b feature/YourFeature`)
+3. Commit changes (`git commit -m 'Add YourFeature'`)
+4. Push (`git push origin feature/YourFeature`)
+5. Open Pull Request
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+MIT License
 
 ---
 
 ## 🙏 Acknowledgments
 
-- **Hugging Face Transformers** for DistilBERT embeddings
-- **scikit-learn** for ensemble ML classifiers
-- **Flask** for the robust backend framework
-- **Font Awesome** for the icon library
+- **Hugging Face Transformers** — DistilBERT
+- **scikit-learn** — ML classifiers
+- **Flask** — Backend framework
+- **Font Awesome** — Icons
 
 ---
 
 ## 📞 Support
 
-For support, email **varshithreddy6147@gmail.com**
-
-## Key Features
-- Machine learning-based phishing detection to classify URLs as phishing or legitimate
-- Real-time URL scanning from the web UI and Chrome extension
-- Flask API integration with endpoints like /predict to connect UI and model
-- Chrome extension support for active tab analysis and result display
-- Web interface for manual URL checks through a browser page
-- Confidence score output with each prediction
-- Feature extraction module that converts URLs to numerical data
-- Feedback system for continuous improvement via /feedback
-- Modular architecture separating frontend, backend, and ML components
-
-## Feedback System (Continuous Improvement)
-- Users report incorrect predictions
-- Feedback is sent to the backend via /feedback
-- URLs are stored for retraining
-- Model accuracy improves over time
-
-PhishGuard AI integrates transformer-based semantic embeddings from DistilBERT with handcrafted structural URL features. The hybrid architecture improves phishing detection robustness while preserving real-time performance for browser extension deployment.
+varshithreddy6147@gmail.com
