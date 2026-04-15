@@ -12,9 +12,7 @@ const thankyouModal = thankyouOverlay?.querySelector?.(".pg-modal") || null;
 let thankyouTimer = null;
 let lastAnalysis = null;
 
-document.addEventListener("DOMContentLoaded", () => {
-    setupEventListeners();
-});
+document.addEventListener("DOMContentLoaded", setupEventListeners);
 
 function setupEventListeners() {
     if (form) form.addEventListener("submit", handleAnalyzeSubmit);

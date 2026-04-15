@@ -1,13 +1,8 @@
-// PhishGuard AI — Background Service Worker
-// Relays predict/health requests from content.js and popup.js to the Flask backend.
-// Running requests from the service worker avoids CORS restrictions.
-
 const API_PREDICT  = "http://127.0.0.1:5000/predict";
 const API_HEALTH   = "http://127.0.0.1:5000/health";
 const API_FEEDBACK = "http://127.0.0.1:5000/feedback";
 
-// Domain-level cache: avoid re-scanning multiple pages on the same host.
-// Note: MV3 service workers may be suspended; cache is best-effort per session.
+// Cache to avoid re-scanning same domain multiple times
 const domainCache = Object.create(null);
 
 function getDomain(url) {

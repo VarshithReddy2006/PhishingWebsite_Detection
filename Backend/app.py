@@ -58,13 +58,13 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger("phishguard")
 
-model_path = os.path.join(os.path.dirname(__file__), 'model_v1.pkl')
-feature_names_path = os.path.join(os.path.dirname(__file__), 'feature_names.pkl')
+_MODEL_PATH = os.path.join(os.path.dirname(__file__), 'model_v1.pkl')
+_FEATURES_PATH = os.path.join(os.path.dirname(__file__), 'feature_names.pkl')
 
 try:
     print("Loading phishing detection model...")
-    model = joblib.load(model_path)
-    expected_features = joblib.load(feature_names_path)
+    model = joblib.load(_MODEL_PATH)
+    expected_features = joblib.load(_FEATURES_PATH)
     print("Backend ready.")
 except Exception as e:
     logger.error("Error loading model artifacts; run Backend/train.py first. %s", e)
@@ -306,7 +306,7 @@ def download_dataset():
 
 # ── Auto-retrain watcher ─────────────────────────────────────────────────
 _FEEDBACK_PATH = os.path.join(os.path.dirname(__file__), "feedback.csv")
-_RETRAIN_COOLDOWN = 60  # seconds between retrain runs
+_RETRAIN_COOLDOWN = 60
 _last_mtime: float = 0
 _last_retrain: float = 0
 _last_model_mtime: float = 0
@@ -316,8 +316,8 @@ def _reload_model() -> None:
     """Reload model artifacts from disk and clear prediction cache."""
     global model, expected_features, prediction_cache
     try:
-        new_model = joblib.load(model_path)
-        new_features = joblib.load(feature_names_path)
+        new_model = joblib.load(_MODEL_PATH)
+        new_features = joblib.load(_FEATURES_PATH)
         # Atomic swap of globals
         model = new_model
         expected_features = new_features
@@ -335,8 +335,8 @@ def _watch_feedback_file() -> None:
     # Initialise to current mtime so startup doesn't trigger a retrain.
     if os.path.exists(_FEEDBACK_PATH):
         _last_mtime = os.path.getmtime(_FEEDBACK_PATH)
-    if os.path.exists(model_path):
-        _last_model_mtime = os.path.getmtime(model_path)
+    if os.path.exists(_MODEL_PATH):
+        _last_model_mtime = os.path.getmtime(_MODEL_PATH)
 
     while True:
         time.sleep(10)
@@ -355,8 +355,8 @@ def _watch_feedback_file() -> None:
                         )
 
             # Check for model file changes → hot-reload
-            if os.path.exists(model_path):
-                model_mtime = os.path.getmtime(model_path)
+            if os.path.exists(_MODEL_PATH):
+                model_mtime = os.path.getmtime(_MODEL_PATH)
                 if model_mtime != _last_model_mtime:
                     _last_model_mtime = model_mtime
                     print("[PhishGuard] Model file changed \u2014 reloading...")

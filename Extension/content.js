@@ -1,53 +1,12 @@
-// PhishGuard AI — Content Script
-// Injects a professional, Shadow-DOM-isolated floating security shield on every webpage.
-// The shield shows real-time ML phishing-detection results from the local Flask backend.
-
 (function initPhishGuard() {
   "use strict";
 
-  // ── One-time injection guard ──────────────────────────────────────────
+  // Injection guard - prevent duplicate injection
   if (document.getElementById("__phishguard_host__")) return;
 
-  // ── Helper utilities ───────────────────────────────────────────────────
-  function confToPercent(c) {
-    if (c == null) return null;
-    const n = Number(c);
-    if (!isFinite(n)) return null;
-    return Math.max(0, Math.min(100, n <= 1 ? n * 100 : n));
-  }
+  // Shared utilities loaded from shared.js: getVerdict, getReasons, confToPercent, fmtUrl
 
-  function fmtUrl(url, maxLen) {
-    try {
-      const u = new URL(url);
-      const s = u.hostname + u.pathname.replace(/\/$/, "");
-      return s.length > maxLen ? s.slice(0, maxLen) + "\u2026" : s;
-    } catch (_) {
-      return url.length > maxLen ? url.slice(0, maxLen) + "\u2026" : url;
-    }
-  }
-
-  function getVerdict(data) {
-    const isPhish = data?.status_code === 1;
-    const conf = data?.confidence || 0;
-
-    if (isPhish && conf > 0.8) return "high_risk";
-    if (isPhish && conf > 0.6) return "suspicious";
-    return "safe";
-  }
-
-  function getReasons(url) {
-    const reasons = [];
-
-    if (!url) return reasons;
-
-    if (url.length > 75) reasons.push("URL is unusually long");
-    if ((url.match(/\./g) || []).length > 3) reasons.push("Too many subdomains");
-    if (/\d/.test(url)) reasons.push("Contains suspicious digits");
-
-    return reasons;
-  }
-
-  // ── CSS (entirely inside Shadow DOM — zero style leakage) ──────────────
+  // CSS styles
   const CSS = `
     *, *::before, *::after { box-sizing: border-box; }
 

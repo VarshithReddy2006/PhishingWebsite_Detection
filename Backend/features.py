@@ -122,11 +122,6 @@ _SUSPICIOUS_EXTENSIONS = {
 }
 
 
-def check_https(url):
-    parsed = urlparse(url)
-    return 1 if parsed.scheme.lower() == "https" else 0
-
-
 def detect_ip(hostname):
     try:
         ipaddress.ip_address(hostname)
@@ -359,12 +354,10 @@ def _load_bert():
     _bert_device = torch.device(
         "cuda" if requested == "cuda" and torch.cuda.is_available() else "cpu"
     )
-    print(f"Loading DistilBERT on {_bert_device}...", flush=True)
     _bert_tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
     _bert_model = DistilBertModel.from_pretrained("distilbert-base-uncased")
     _bert_model.to(_bert_device)
     _bert_model.eval()
-    print("DistilBERT ready.", flush=True)
 
 
 def get_bert_embedding(text):
@@ -415,11 +408,6 @@ def get_bert_embeddings_batch(texts, batch_size=64, cache=None):
 
     cached_count = len(texts) - len(uncached_texts)
     if uncached_texts:
-        print(
-            f"Computing {len(uncached_texts)} new embeddings "
-            f"({cached_count} cached) in batches of {batch_size}...",
-            flush=True,
-        )
         for start in range(0, len(uncached_texts), batch_size):
             batch = uncached_texts[start : start + batch_size]
             inputs = _bert_tokenizer(
@@ -438,7 +426,5 @@ def get_bert_embeddings_batch(texts, batch_size=64, cache=None):
                 embeddings[idx] = vec
                 if cache is not None:
                     cache[uncached_texts[start + j]] = vec
-    elif cached_count:
-        print(f"All {cached_count} embeddings loaded from cache.", flush=True)
 
     return embeddings
