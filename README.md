@@ -1,16 +1,77 @@
-# PhishGuard AI — ML-Powered Phishing Website Detection
+# 🛡️ PhishGuard AI — Real-Time Phishing Website Detection System
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![ML](https://img.shields.io/badge/Model-GradientBoosting-green)
 
-Browser extension and web interface for real-time phishing detection using ensemble ML classifiers and 58 structural URL features.
+An end-to-end phishing detection system for cybersecurity applications analyzes URLs using **58 engineered features** and **ensemble machine learning models** to classify websites as **Legitimate, Suspicious, or Phishing** in real time.
+
+> Designed with a focus on **accuracy, speed, and real-world usability** through a Web UI and Chrome Extension.
+
+> 🚀 Achieves **~90% accuracy** using lightweight feature-based ML without relying on external blacklists.
+
+---
+
+## ❗ Problem Statement
+
+Phishing attacks remain one of the most common cybersecurity threats, often deceiving users through visually similar but malicious websites.
+
+Traditional detection methods rely on blacklists, which fail to detect newly created phishing URLs.
+
+PhishGuard addresses this by:
+- Analyzing URL structure instead of relying on external databases
+- Detecting patterns commonly used in phishing attacks
+- Providing fast and accurate real-time predictions
 
 ---
 
 ## 🌟 Features
 
-- **58 Structural Features** — URL length, entropy, TLD risk, character ratios, path depth
-- **Ensemble Classifiers** — Random Forest + Gradient Boosting
-- **Real-Time Scanning** — Web UI and Chrome extension (Manifest V3)
+- **58 Engineered URL Features** — URL length, entropy, TLD risk, character ratios, path depth
+- **Real-Time URL Scanning** — Web UI and Chrome extension (Manifest V3)
 - **Feedback-Driven Learning** — User corrections improve model accuracy
 - **Auto-Retraining** — Model updates from user feedback
+
+---
+
+## 🧰 Tech Stack
+
+- Python (Flask backend)
+- scikit-learn (ML models)
+- NumPy, Pandas
+- JavaScript (Web UI + Extension)
+- Chrome Extension (Manifest V3)
+
+---
+
+## 📈 Model Performance
+
+- Accuracy: ~90.8%
+- Precision: ~90.7%
+- Recall: ~90.9%
+- F1 Score: ~90.8%
+
+> Gradient Boosting was selected as the final model based on validation performance.
+
+---
+
+## ⚙️ How It Works
+
+1. User submits a URL
+2. System extracts 58 structural features
+3. Features are passed to trained ML model
+4. Model predicts:
+   - Legitimate
+   - Suspicious
+   - Phishing
+5. User feedback is stored and used for retraining
+
+---
+
+## 🎯 Use Cases
+
+- Detect phishing websites in real time
+- Enhance browser security with lightweight ML
+- Educational project for cybersecurity and ML
+- Base system for deploying security tools
 
 ---
 
@@ -18,7 +79,7 @@ Browser extension and web interface for real-time phishing detection using ensem
 
 ### Prerequisites
 
-- Python 3.8+
+- Python 3.10+
 - Google Chrome (for extension)
 
 ### Installation
