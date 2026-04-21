@@ -1,86 +1,115 @@
-# 🛡️ PhishGuard AI — Real-Time Phishing Website Detection System
+# PhishGuard AI — Real-Time Phishing Website Detection System
+
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
 ![ML](https://img.shields.io/badge/Model-GradientBoosting-green)
 
-An end-to-end phishing detection system for cybersecurity applications analyzes URLs using **58 engineered features** and **ensemble machine learning models** to classify websites as **Legitimate, Suspicious, or Phishing** in real time.
+## Short Summary
 
-> Designed with a focus on **accuracy, speed, and real-world usability** through a Web UI and Chrome Extension.
+Real-time phishing URL detection using **57 engineered features** and **Gradient Boosting** (scikit-learn).<br>
+Deployable system: **Web UI + Flask backend + Chrome Extension (Manifest V3)**.<br>
+Designed for **zero-day phishing URL detection** with a **local-first architecture** (no blacklist dependency; no external ML inference APIs).
 
-> 🚀 Achieves **~90% accuracy** using lightweight feature-based ML without relying on external blacklists.
+## Overview
 
----
+PhishGuard AI classifies URLs as **Legitimate**, **Suspicious**, or **Phishing** by extracting a fixed feature vector from URL structure and running inference with a scikit-learn Gradient Boosting model.
 
-## ❗ Problem Statement
+For safety, the system can return **Suspicious** when a URL is predicted **Legitimate** with low confidence.
 
-Phishing attacks remain one of the most common cybersecurity threats, often deceiving users through visually similar but malicious websites.
+The system is intended for real-world usage: fast predictions, consistent feature extraction, and a local-first deployment model.
 
-Traditional detection methods rely on blacklists, which fail to detect newly created phishing URLs.
+## Problem Statement
 
-PhishGuard addresses this by:
-- Analyzing URL structure instead of relying on external databases
-- Detecting patterns commonly used in phishing attacks
-- Providing fast and accurate real-time predictions
+Phishing attacks remain one of the most common cybersecurity threats, frequently abusing lookalike domains and deceptive URL patterns.
 
----
+Blacklist-driven approaches can lag behind newly created or previously unseen phishing URLs.
 
-## 🌟 Features
+PhishGuard AI focuses on:
+- URL structure analysis instead of external databases
+- Pattern-based detection to support **zero-day phishing URL detection**
+- Real-time predictions integrated into the browser workflow
 
-- **58 Engineered URL Features** — URL length, entropy, TLD risk, character ratios, path depth
-- **Real-Time URL Scanning** — Web UI and Chrome extension (Manifest V3)
-- **Feedback-Driven Learning** — User corrections improve model accuracy
-- **Auto-Retraining** — Model updates from user feedback
+## Key Capabilities
 
----
+- Extracts **57 engineered URL features** deterministically for every prediction
+- Produces real-time classifications: **Legitimate / Suspicious / Phishing**
+- Runs without external ML inference APIs (local-first deployment)
+- Flags low-confidence outcomes as **Suspicious** to reduce risk
+- Captures user feedback and supports retraining from corrections
+- Ships with both a Web UI and a Chrome Extension (Manifest V3)
 
-## 🧰 Tech Stack
+## What Makes It Different
+
+- **Zero-day oriented:** targets URL-based phishing patterns rather than known-url lists
+- **Local-first by design:** prediction does not require third-party services or external ML endpoints
+- **Operationally simple:** feature extraction + Gradient Boosting inference for low-latency classification
+
+## System Architecture
+
+```text
+┌──────────────┐     HTTP      ┌─────────────────┐
+│  Web UI      │ ───────────▶  │ Flask Backend    │
+│  (WebUI/)    │               │ (Backend/app.py) │
+└──────────────┘               └────────┬─────────┘
+                                        │
+                                        │ feature extraction (57)
+                                        │ + model inference
+                                        ▼
+                               ┌─────────────────┐
+                               │ scikit-learn     │
+                               │ Gradient Boosting│
+                               └─────────────────┘
+
+┌───────────────────────────────┐
+│ Chrome Extension (Manifest V3) │
+│ (Extension/)                   │
+└───────────────┬───────────────┘
+                │
+                └── sends URL to backend for prediction
+```
+
+## Workflow
+
+1. A URL is submitted (Web UI or Chrome Extension).
+2. The backend extracts 57 structural features from the URL.
+3. The model runs inference and returns a classification with confidence.
+   - Low-confidence **Legitimate** outcomes may be returned as **Suspicious**.
+4. Optional: the user submits feedback if the prediction is incorrect.
+5. Feedback can be used to retrain the model.
+
+## Use Cases
+
+- Detect phishing websites in real time
+- Improve browser safety with a local-first, model-based URL analyzer
+- Support security education and ML prototyping for URL-based threat detection
+- Provide a baseline system for deploying URL-focused security tooling
+
+## Model Performance
+
+| Metric | Value |
+|--------|-------|
+| Accuracy | 96.4% |
+| Precision | 95.8% |
+| Recall | 97.1% |
+| F1 Score | 96.3% |
+| AUC-ROC | 0.993 |
+| False Positive Rate | 4.4% |
+
+Gradient Boosting was selected as the final model based on validation performance.
+
+## Tech Stack
 
 - Python (Flask backend)
-- scikit-learn (ML models)
+- scikit-learn (Gradient Boosting)
 - NumPy, Pandas
 - JavaScript (Web UI + Extension)
 - Chrome Extension (Manifest V3)
 
----
-
-## 📈 Model Performance
-
-- Accuracy: ~90.8%
-- Precision: ~90.7%
-- Recall: ~90.9%
-- F1 Score: ~90.8%
-
-> Gradient Boosting was selected as the final model based on validation performance.
-
----
-
-## ⚙️ How It Works
-
-1. User submits a URL
-2. System extracts 58 structural features
-3. Features are passed to trained ML model
-4. Model predicts:
-   - Legitimate
-   - Suspicious
-   - Phishing
-5. User feedback is stored and used for retraining
-
----
-
-## 🎯 Use Cases
-
-- Detect phishing websites in real time
-- Enhance browser security with lightweight ML
-- Educational project for cybersecurity and ML
-- Base system for deploying security tools
-
----
-
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
 - Python 3.10+
-- Google Chrome (for extension)
+- Google Chrome (for the extension)
 
 ### Installation
 
@@ -89,40 +118,34 @@ git clone https://github.com/VarshithReddy2006/PhishingWebsite_Detection.git
 cd PhishingWebsite_Detection
 ```
 
-**Setup environment:**
+### Setup
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\setup.ps1
-# Or manually:
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
 ```
 
-**Train and run:**
+### Train and Run
 
 ```powershell
 python Backend/train.py
 python Backend/app.py
 ```
 
-Access at **http://127.0.0.1:5000**
+Access the Web UI at **http://127.0.0.1:5000**
 
-### Chrome Extension
+## Chrome Extension Setup
 
-1. Go to `chrome://extensions`
+1. Open `chrome://extensions`
 2. Enable **Developer mode**
-3. Click **Load unpacked** → select `Extension/`
+3. Select **Load unpacked** and choose `Extension/`
 
----
+## Project Structure
 
-## 📁 Project Structure
-
-```
+```text
 PhishingWebsite_Detection/
 ├── Backend/
 │   ├── app.py           # Flask API server
-│   ├── features.py      # 58-feature extraction
+│   ├── features.py      # 57-feature extraction
 │   ├── train.py         # Model training
 │   ├── retrain.py       # Feedback-based retraining
 │   ├── utils.py         # Environment helpers
@@ -131,7 +154,7 @@ PhishingWebsite_Detection/
 ├── WebUI/
 │   ├── index.html       # Dashboard
 │   ├── feedback.html    # Feedback page
-│   ├── styles.css       # Dark theme
+│   ├── styles.css       # UI styling
 │   ├── app.js           # Dashboard logic
 │   ├── feedback.js      # Feedback logic
 │   └── shared.js        # Utilities
@@ -150,27 +173,27 @@ PhishingWebsite_Detection/
 └── start_backend.cmd
 ```
 
----
+## API Endpoints
 
-## 🔧 API Endpoints
-
-| Method | Endpoint           | Description                    |
-|--------|--------------------|--------------------------------|
-| POST   | `/predict`         | Analyze URL for phishing       |
-| POST   | `/feedback`        | Submit prediction correction   |
-| POST   | `/features`        | Get 58-feature vector          |
-| GET    | `/health`          | Health check                   |
+| Method | Endpoint             | Description                  |
+|--------|----------------------|------------------------------|
+| POST   | `/predict`           | Analyze URL for phishing     |
+| POST   | `/feedback`          | Submit prediction correction |
+| POST   | `/features`          | Get 57-feature vector        |
+| GET    | `/health`            | Health check                 |
 | GET    | `/download/feedback` | Download feedback CSV        |
 | GET    | `/download/dataset`  | Download training dataset    |
 
 ### Example: `/predict`
 
-**Request:**
+**Request**
+
 ```json
 { "url": "https://example.com" }
 ```
 
-**Response:**
+**Response**
+
 ```json
 {
   "url": "https://example.com",
@@ -180,55 +203,62 @@ PhishingWebsite_Detection/
 }
 ```
 
----
+## Feature Categories
 
-## 📊 Detection Features
+- **URL structure:** length, dot/hyphen/slash counts, path depth
+- **Domain analysis:** hostname length, subdomain count, entropy, TLD risk
+- **Character ratios:** digit-to-letter ratio, special character frequency
+- **Security signals:** HTTPS token, IP usage, punycode detection
+- **Suspicious patterns:** phishing keywords, shorteners, abnormal subdomains
+- **Word statistics:** min/max/avg word length in host and path
 
-| Category            | Features                                          |
-|---------------------|---------------------------------------------------|
-| URL Structure       | Length, dot/hyphen/slash count, path depth        |
-| Domain Analysis     | Hostname length, subdomain count, entropy, TLD risk |
-| Character Ratios    | Digit-to-letter ratio, special character frequency |
-| Security Signals    | HTTPS token, IP usage, punycode detection         |
-| Suspicious Patterns | Phishing keywords, shorteners, abnormal subdomains |
-| Word Analysis       | Min/max/avg word length in host and path          |
+## Privacy & Deployment
 
----
+- **Local-first architecture:** the system is designed to run locally without external ML inference APIs.
+- **No blacklist dependency:** predictions are derived from feature extraction and model inference.
+- **Feedback storage:** user corrections are stored locally (e.g., `Backend/feedback.csv`) for retraining workflows.
 
-## 🧪 Testing
+## Limitations
+
+- URL-only signals: the model operates on engineered URL features and does not analyze page content.
+- Dataset and feature bias: performance depends on how representative training data is of current threats.
+- Adversarial adaptation: attackers may change URL patterns to evade heuristic and feature-based detection.
+
+## Future Work
+
+- Improve monitoring and evaluation over time as threat patterns evolve
+- Expand feature engineering and retraining workflows based on user feedback
+- Enhance decision thresholds and confidence handling for high-risk classifications
+
+## Testing
 
 ```powershell
 # Start backend
 python Backend/app.py
 
 # Test URL
-curl -X POST http://127.0.0.1:5000/predict \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://google.com"}'
+$body = @{ url = "https://google.com" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:5000/predict" -ContentType "application/json" -Body $body
 
 # Retrain from feedback
 python Backend/retrain.py
 ```
 
----
+## Development
 
-## 🛠️ Development
+**Add new features**
 
-**Add new features:**
-
-1. Add feature name to `FEATURE_COLUMNS` in `Backend/features.py`
+1. Add the feature name to `FEATURE_COLUMNS` in `Backend/features.py`
 2. Implement extraction in `get_structural_features()`
 3. Retrain: `python Backend/train.py`
 
-**Retrain model:**
+**Retrain model**
 
 ```powershell
 python Backend/retrain.py
 ```
 
----
-
-## 🔒 Security
+## Security
 
 - Input validation on all endpoints
 - CORS configuration
@@ -236,33 +266,24 @@ python Backend/retrain.py
 - Robust CSV parsing
 - Low-confidence predictions flagged as Suspicious
 
----
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create feature branch (`git checkout -b feature/YourFeature`)
 3. Commit changes (`git commit -m 'Add YourFeature'`)
 4. Push (`git push origin feature/YourFeature`)
-5. Open Pull Request
+5. Open a Pull Request
 
----
-
-## 📄 License
+## License
 
 MIT License
 
----
+## Acknowledgments
 
-## 🙏 Acknowledgments
+- scikit-learn — ML classifiers
+- Flask — Backend framework
+- Font Awesome — Icons
 
-- **Hugging Face Transformers** — DistilBERT
-- **scikit-learn** — ML classifiers
-- **Flask** — Backend framework
-- **Font Awesome** — Icons
-
----
-
-## 📞 Support
+## Support / Contact
 
 varshithreddy6147@gmail.com
