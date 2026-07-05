@@ -365,7 +365,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## 👥 Maintainers
 
 * **Varshith Reddy** — varshithreddy6147@gmail.com
-* **Boda Karthik Netha** — bodakarthiknetha@gmail.com
+* **Boda Karthikey** — bodakarthiknetha@gmail.com
 
 ---
 *Contributions, bug reports, and suggestions are welcome! Feel free to open a Pull Request.*
